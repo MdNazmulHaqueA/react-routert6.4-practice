@@ -21,7 +21,7 @@
 // }
 // import { useEffect, useState } from 'react';
 
-import { useLoaderData } from 'react-router-dom';
+import { json, useLoaderData } from 'react-router-dom';
 import EventsList from '../components/EventsList';
 
 function EventsPage() {
@@ -74,9 +74,13 @@ export async function loader() {
     // throw new Error();
     // eslint-disable-next-line no-throw-literal
     // throw { message: 'Could not fetch events.' };
-    throw new Response(JSON.stringify({ message: 'Could not fetch events.' }), {
-      status: 500
-    });
+    // throw new Response(JSON.stringify({ message: 'Could not fetch events.' }), {
+    //   status: 500
+    // });
+    return json(
+      { message: 'Could not fetch events.' },
+      { message: 'Could not fetch events.' }
+    );
   } else {
     // const resData = await response.json();
     // return resData.events;
