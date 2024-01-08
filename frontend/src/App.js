@@ -31,6 +31,7 @@ import EventsPage, { loader as eventsLoader } from './pages/Events';
 import EventsRootLayout from './pages/EventsRoot';
 import HomePage from './pages/Home';
 import NewEventPage from './pages/NewEvent';
+import NewsletterPage, { action as newsletterAction } from './pages/Newsletter';
 import RootLayout from './pages/Root';
 
 const router = createBrowserRouter([
@@ -80,11 +81,16 @@ const router = createBrowserRouter([
           }
           // { path: ':eventId/edit', element: <EditEventPage /> }
         ]
-      }
+      },
       // { path: 'events', element: <EventsPage /> },
       // { path: 'events/:eventId', element: <EventDetailPage /> },
       // { path: 'events/new', element: <NewEventPage /> },
       // { path: 'events/:eventId/edit', element: <EditEventPage /> }
+      {
+        path: 'newsletter',
+        element: <NewsletterPage />,
+        action: newsletterAction
+      }
     ]
   }
 ]);
