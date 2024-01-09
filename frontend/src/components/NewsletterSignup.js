@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useFetcher } from 'react-router-dom';
 import classes from './NewsletterSignup.module.css';
+
 function NewsletterSignup() {
   const fetcher = useFetcher();
   const { data, state } = fetcher;

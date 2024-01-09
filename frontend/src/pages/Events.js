@@ -21,7 +21,8 @@
 // }
 // import { useEffect, useState } from 'react';
 
-import { json, useLoaderData } from 'react-router-dom';
+import { Suspense } from 'react';
+import { Await, defer, json, useLoaderData } from 'react-router-dom';
 import EventsList from '../components/EventsList';
 
 function EventsPage() {
@@ -46,12 +47,12 @@ function EventsPage() {
   //   fetchEvents();
   // }, []);
   // const events = useLoaderData();
-  const data = useLoaderData();
+  // const data = useLoaderData();
   // if(data.isError){
   //   return <p>{data.message}</p>
   // }
-  const events = data.events;
-
+  // const events = data.events;
+  const { events } = useLoaderData();
   return (
     <>
       {/* <div style={{ textAlign: 'center' }}>
@@ -59,12 +60,33 @@ function EventsPage() {
         {error && <p>{error}</p>}
       </div>
       {!isLoading && fetchedEvents && <EventsList events={fetchedEvents} />} */}
-      <EventsList events={events} />
+
+      {/* <EventsList events={events} /> */}
+      <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
+        <Await resolve={events}>
+          {loadedEvents => <EventsList events={loadedEvents} />}
+        </Await>
+      </Suspense>
     </>
   );
 }
 
 export default EventsPage;
+
+async function loadEvents() {
+  const response = await fetch('http://localhost:8080/events');
+  if (!response.ok) {
+    return json(
+      { message: 'Could not fetch events.' },
+      { message: 'Could not fetch events.' }
+    );
+  } else {
+    const resData = response.json();
+    return resData.events;
+  }
+}
+
+/*
 
 export async function loader() {
   const response = await fetch('http://localhost:8080/events');
@@ -86,4 +108,12 @@ export async function loader() {
     // return resData.events;
     return response;
   }
+}
+
+*/
+
+export function loader() {
+  defer({
+    events: loadEvents() //must have a promise in defer
+  });
 }
