@@ -1,21 +1,67 @@
 // import { useParams } from 'react-router-dom';
 
-import { json, redirect, useRouteLoaderData } from 'react-router-dom';
+import { Suspense } from 'react';
+import {
+  Await,
+  defer,
+  json,
+  redirect,
+  useRouteLoaderData
+} from 'react-router-dom';
 import EventItem from '../components/EventItem';
+import EventsList from '../components/EventsList';
 
 export default function EventDetailPage() {
   // const params = useParams();
   // const data = useLoaderData();
-  const data = useRouteLoaderData('event-detail');
+  // const data = useRouteLoaderData('event-detail');
+  const { event, events } = useRouteLoaderData('event-detail');
 
   return (
     <>
       {/* <h1>EventDetailPage</h1> */}
       {/* <p>Event Id: {params.eventId}</p> */}
+      <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
+        <Await resolve={event}>
+          {loadedEvent => <EventItem event={loadedEvent} />}
+        </Await>
+      </Suspense>
+      <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
+        <Await resolve={events}>
+          {loadedEvents => <EventsList event={loadedEvents} />}
+        </Await>
+      </Suspense>
 
-      <EventItem event={data.event} />
+      {/* <EventItem event={data.event} />
+      <EventsList events={events} /> */}
     </>
   );
+}
+
+async function loadEvent(id) {
+  const response = await fetch('http://localhost:8080/events/' + id);
+  if (!response.ok) {
+    throw json(
+      { message: 'Could not fetch details for selected events' },
+      { status: 500 }
+    );
+  } else {
+    const resData = await response.json();
+    return resData.event;
+  }
+}
+
+async function loadEvents() {
+  const response = await fetch('http://localhost:8080/events');
+  if (!response.ok) {
+    return json(
+      { message: 'Could not fetch events.' },
+      { message: 'Could not fetch events.' }
+    );
+  } else {
+    const resData = await response.json();
+    return resData.events;
+  }
 }
 
 export async function loader({ request, params }) {
@@ -24,15 +70,19 @@ export async function loader({ request, params }) {
   // request.url
   const id = params.eventId;
   // return fetch("http://localhost:8080/events"+ id); -> we could return like this also
-  const response = await fetch('http://localhost:8080/events/' + id);
-  if (!response.ok) {
-    throw json(
-      { message: 'Could not fetch details for selected events' },
-      { status: 500 }
-    );
-  } else {
-    return response;
-  }
+  // const response = await fetch('http://localhost:8080/events/' + id);
+  // if (!response.ok) {
+  //   throw json(
+  //     { message: 'Could not fetch details for selected events' },
+  //     { status: 500 }
+  //   );
+  // } else {
+  //   return response;
+  // }
+  return defer({
+    event: await loadEvent(id),
+    events: loadEvents()
+  });
 }
 
 export async function action({ params, request }) {

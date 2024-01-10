@@ -1,3 +1,7 @@
+import { Suspense } from 'react';
+import { Await, defer, json, useLoaderData } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
 // import { Link } from 'react-router-dom';
 
 // const DUMMY_EVENTS = [
@@ -20,10 +24,6 @@
 //   );
 // }
 // import { useEffect, useState } from 'react';
-
-import { Suspense } from 'react';
-import { Await, defer, json, useLoaderData } from 'react-router-dom';
-import EventsList from '../components/EventsList';
 
 function EventsPage() {
   // const [isLoading, setIsLoading] = useState(false);
@@ -52,19 +52,20 @@ function EventsPage() {
   //   return <p>{data.message}</p>
   // }
   // const events = data.events;
+
   const { events } = useLoaderData();
   return (
     <>
-      {/* <div style={{ textAlign: 'center' }}>
+      {/* { <div style={{ textAlign: 'center' }}>
         {isLoading && <p>Loading...</p>}
         {error && <p>{error}</p>}
       </div>
-      {!isLoading && fetchedEvents && <EventsList events={fetchedEvents} />} */}
+      {!isLoading && fetchedEvents && <EventsList events={fetchedEvents} />} } */}
 
       {/* <EventsList events={events} /> */}
       <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
         <Await resolve={events}>
-          {loadedEvents => <EventsList events={loadedEvents} />}
+          {(loadedEvents) => <EventsList events={loadedEvents} />}
         </Await>
       </Suspense>
     </>
@@ -81,7 +82,7 @@ async function loadEvents() {
       { message: 'Could not fetch events.' }
     );
   } else {
-    const resData = response.json();
+    const resData = await response.json();
     return resData.events;
   }
 }
@@ -113,7 +114,7 @@ export async function loader() {
 */
 
 export function loader() {
-  defer({
+  return defer({
     events: loadEvents() //must have a promise in defer
   });
 }
